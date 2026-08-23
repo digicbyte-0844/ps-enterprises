@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-sage-canvas: #d3e4df;
+  --color-pure-white: #ffffff;
+  --color-carbon: #0d1212;
+  --color-graphite: #34484a;
+  --color-slate: #565959;
+  --color-mist: #7b8889;
+  --color-vivid-teal: #64d5b3;
+}
+
+/* Zoox-style clean typography & rendering */
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    background-color: var(--color-sage-canvas);
+    color: var(--color-carbon);
+  }
+
+  body {
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #d3e4df;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #7b8889;
+  border-radius: 9999px;
+  border: 2px solid #d3e4df;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #34484a;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee 14s linear infinite;
+}
+
+.animate-marquee-slow {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee 22s linear infinite;
+}
+
+@keyframes text-glow {
+  0%, 100% { opacity: 0.9; text-shadow: 0 0 8px rgba(100, 213, 179, 0.4); }
+  50% { opacity: 1; text-shadow: 0 0 16px rgba(100, 213, 179, 0.8); }
+}
+
+.animate-text-glow {
+  animation: text-glow 2.5s ease-in-out infinite;
+}

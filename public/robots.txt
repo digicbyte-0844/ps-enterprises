@@ -1,0 +1,6 @@
+# Robots.txt for PS Safetynets Solutions Hyderabad
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://pssafetynetssolutions.in/sitemap.xml
