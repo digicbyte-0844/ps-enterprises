@@ -70,7 +70,6 @@ export default function BeforeAfterSlider({
   };
 
   const handleInteractionEnd = () => {
-    // Resume auto-sweep after 3 seconds of idle time
     setTimeout(() => {
       setIsUserInteracting(false);
       startTimeRef.current = null;
@@ -78,25 +77,25 @@ export default function BeforeAfterSlider({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full text-left">
       {/* Title & Subtitle */}
       {title && (
-        <div className="text-center max-w-2xl mx-auto mb-8">
-          <span className="text-[12px] font-semibold uppercase tracking-eyebrow text-mist dark:text-dark-muted block mb-2">
+        <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-vivid-teal block mb-1">
             REAL-WORLD TRANSFORMATION
           </span>
-          <h3 className="text-2xl sm:text-4xl font-normal text-carbon dark:text-dark-text tracking-tight">
+          <h3 className="text-xl sm:text-3xl font-bold text-carbon dark:text-dark-text tracking-tight font-display">
             {title}
           </h3>
           {subtitle && (
-            <p className="text-slate dark:text-dark-muted text-xs sm:text-sm mt-2">
+            <p className="text-slate dark:text-dark-muted text-xs sm:text-sm mt-1.5">
               {subtitle}
             </p>
           )}
         </div>
       )}
 
-      {/* Comparison Slider Box with 36px border radius (Zoox Style) */}
+      {/* Comparison Slider Box with Sharp Square Borders */}
       <div
         ref={containerRef}
         onMouseDown={handleMouseDown}
@@ -106,7 +105,7 @@ export default function BeforeAfterSlider({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleInteractionEnd}
-        className="relative w-full aspect-[16/9] sm:aspect-[21/9] max-h-[520px] rounded-[36px] overflow-hidden select-none cursor-ew-resize border border-carbon/5 dark:border-dark-border shadow-subtle-hover bg-carbon touch-pan-y"
+        className="relative w-full aspect-[16/9] sm:aspect-[21/9] max-h-[520px] overflow-hidden select-none cursor-ew-resize border border-carbon/15 dark:border-dark-border shadow-subtle-hover bg-carbon touch-pan-y"
       >
         {/* AFTER IMAGE (Background Layer) */}
         <img
@@ -116,8 +115,8 @@ export default function BeforeAfterSlider({
         />
 
         {/* AFTER BADGE */}
-        <div className="absolute top-5 right-5 z-20 pointer-events-none">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-carbon/80 backdrop-blur-md text-pure-white text-xs font-semibold border border-pure-white/10 shadow-sm">
+        <div className="absolute top-4 right-4 z-20 pointer-events-none">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-carbon/90 backdrop-blur-md text-pure-white text-[11px] font-bold border-l-2 border-emerald-400 border-t border-r border-b border-pure-white/10 shadow-sm">
             <ShieldCheck className="w-3.5 h-3.5 text-vivid-teal" />
             <span>{afterLabel}</span>
           </div>
@@ -134,8 +133,8 @@ export default function BeforeAfterSlider({
             className="absolute inset-0 w-full h-full object-cover"
           />
           {/* BEFORE BADGE */}
-          <div className="absolute top-5 left-5 z-20">
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-red-950/80 backdrop-blur-md text-pure-white text-xs font-semibold border border-red-500/20 shadow-sm">
+          <div className="absolute top-4 left-4 z-20">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-950/90 backdrop-blur-md text-pure-white text-[11px] font-bold border-l-2 border-red-500 border-t border-r border-b border-red-500/20 shadow-sm">
               <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
               <span>{beforeLabel}</span>
             </div>
@@ -150,7 +149,7 @@ export default function BeforeAfterSlider({
           <div className="w-[3px] h-full bg-pure-white shadow-lg" />
           
           <div
-            className="absolute w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-pure-white text-carbon flex items-center justify-center shadow-xl border-2 border-carbon cursor-grab active:cursor-grabbing pointer-events-auto transition-transform hover:scale-110 active:scale-95"
+            className="absolute w-9 h-9 sm:w-10 sm:h-10 bg-pure-white text-carbon flex items-center justify-center shadow-xl border-2 border-carbon cursor-grab active:cursor-grabbing pointer-events-auto transition-transform hover:scale-110 active:scale-95"
             aria-label="Drag slider"
           >
             <div className="flex items-center gap-0.5 text-xs font-bold">
@@ -161,10 +160,10 @@ export default function BeforeAfterSlider({
         </div>
 
         {/* Live Auto-Sweep Indicator Hint */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-          <div className="px-3.5 py-1 rounded-full bg-carbon/75 backdrop-blur-md text-pure-white/90 text-[11px] font-medium tracking-wide flex items-center gap-1.5 shadow-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-vivid-teal animate-ping" />
-            <span>Auto-sweep active • Drag or touch to override</span>
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+          <div className="px-3 py-1 bg-carbon/80 backdrop-blur-md text-pure-white text-[10px] sm:text-[11px] font-semibold tracking-wide flex items-center gap-1.5 shadow-md border border-pure-white/10">
+            <span className="w-1.5 h-1.5 bg-emerald-400 animate-pulse" />
+            <span>Auto-sweep active • Drag or touch to compare</span>
           </div>
         </div>
       </div>

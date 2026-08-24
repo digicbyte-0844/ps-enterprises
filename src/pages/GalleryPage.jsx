@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import BeforeAfterSlider from '../components/BeforeAfterSlider';
-import { Sparkles, ZoomIn, X, ArrowRight, ShieldCheck, Filter } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, Filter, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function GalleryPage({ onOpenQuote }) {
-  const [selectedImg, setSelectedImg] = useState(null);
   const [activeCategory, setActiveCategory] = useState('ALL');
 
   const galleryItems = [
@@ -13,7 +12,7 @@ export default function GalleryPage({ onOpenQuote }) {
       title: 'Luxury Balcony Monofilament Netting',
       category: 'Balcony',
       image: '/images/pigeon-safety-net.jpg',
-      tag: '100% Invisible'
+      tag: '100% Invisible • 5-Yr Warranty'
     },
     {
       id: 'invisible-grill-toddler',
@@ -62,7 +61,7 @@ export default function GalleryPage({ onOpenQuote }) {
       title: 'Panoramic High-Rise Balcony Protection',
       category: 'Balcony',
       image: '/images/hero-balcony.jpg',
-      tag: 'Sunset Skyline'
+      tag: 'Sunset Skyline View'
     },
     {
       id: 'ducts-area-net',
@@ -101,7 +100,7 @@ export default function GalleryPage({ onOpenQuote }) {
     { id: 'Sports Turf', label: 'Sports Turfs' },
     { id: 'Duct Area', label: 'Duct Shafts' },
     { id: 'Bird Spikes', label: 'Bird Spikes' },
-    { id: 'Engineering', label: 'Certified Installation' }
+    { id: 'Engineering', label: 'Certified Rigging' }
   ];
 
   const filteredItems = galleryItems.filter((item) => {
@@ -110,34 +109,35 @@ export default function GalleryPage({ onOpenQuote }) {
   });
 
   return (
-    <div className="pt-28 sm:pt-36 pb-24 bg-sage-canvas dark:bg-[#080d0e] min-h-screen transition-colors duration-300 animate-fade-in">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="pt-28 sm:pt-36 pb-24 bg-sage-canvas dark:bg-[#080d0e] min-h-screen transition-colors duration-300 animate-fade-in text-left">
+      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
+        
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-pure-white/80 dark:bg-dark-card border border-carbon/5 dark:border-dark-border mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-vivid-teal" />
-            <span className="text-[11px] font-semibold uppercase tracking-eyebrow text-mist dark:text-dark-muted">
-              ARCHITECTURAL PORTFOLIO
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-pure-white/90 dark:bg-dark-card border-l-2 border-emerald-500 border-t border-r border-b border-carbon/15 dark:border-dark-border mb-3 shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-carbon dark:text-vivid-teal">
+              ARCHITECTURAL TRANSFORMATION PORTFOLIO
             </span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-normal text-carbon dark:text-dark-text tracking-tight leading-[1.08] font-display">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-carbon dark:text-dark-text tracking-tight leading-[1.1] font-display">
             Installation Gallery.
           </h1>
-          <p className="text-slate dark:text-dark-muted text-sm sm:text-base mt-3 leading-relaxed">
-            Real installations across residential high-rises, luxury penthouses, commercial towers, and multi-sport turfs.
+          <p className="text-slate dark:text-dark-muted text-xs sm:text-base mt-2.5 max-w-2xl mx-auto leading-relaxed">
+            Real installations across residential high-rises, luxury penthouses, commercial towers, and multi-sport turfs in Hyderabad.
           </p>
 
-          {/* Category Filter Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
+          {/* Category Filter Pills (Sharp Format) */}
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mt-6">
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`text-xs sm:text-sm font-semibold px-4 py-2 rounded-[16px] transition-all ${
+                className={`text-xs sm:text-sm font-bold px-3.5 py-2 transition-all cursor-pointer ${
                   activeCategory === cat.id
-                    ? 'bg-carbon text-pure-white dark:bg-vivid-teal dark:text-carbon shadow-sm scale-105'
-                    : 'bg-pure-white/80 dark:bg-dark-card text-carbon dark:text-dark-text hover:bg-pure-white dark:hover:bg-dark-surface border border-carbon/5 dark:border-dark-border'
+                    ? 'bg-carbon text-pure-white dark:bg-vivid-teal dark:text-carbon shadow-sm border border-carbon dark:border-vivid-teal'
+                    : 'bg-pure-white/90 dark:bg-dark-card text-carbon dark:text-dark-text hover:bg-pure-white border border-carbon/15 dark:border-dark-border'
                 }`}
               >
                 {cat.label}
@@ -147,14 +147,14 @@ export default function GalleryPage({ onOpenQuote }) {
         </div>
 
         {/* Real-World Before / After Showcase */}
-        <div className="space-y-12 mb-16">
+        <div className="space-y-10 sm:space-y-14 mb-16">
           <BeforeAfterSlider
             beforeImage="/images/box-cricket-before.jpg"
             afterImage="/images/box-cricket-after.jpg"
             beforeLabel="Before: Empty Unused Terrace"
             afterLabel="After: Enclosed Box Cricket Arena"
             title="Box Cricket Arena Transformation"
-            subtitle="Drag the slider to see how a bare, unutilized building rooftop is converted into a floodlit, high-yield box cricket turf."
+            subtitle="Drag the slider to see how a bare building rooftop is converted into a floodlit box cricket turf."
           />
 
           <BeforeAfterSlider
@@ -163,7 +163,7 @@ export default function GalleryPage({ onOpenQuote }) {
             beforeLabel="Before: Rusted Iron Cage Bars"
             afterLabel="After: Safe & Panoramic SS 316 Invisible Grills"
             title="Invisible Grill High-Rise Upgrade"
-            subtitle="Replace oppressive cage bars with elegant, child-safe, 400kg+ tensile SS 316 invisible grills without blocking daylight."
+            subtitle="Replace heavy cage bars with child-safe, 400kg+ tensile SS 316 invisible grills without blocking daylight."
           />
 
           <BeforeAfterSlider
@@ -185,12 +185,12 @@ export default function GalleryPage({ onOpenQuote }) {
           />
         </div>
 
-        {/* Gallery Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+        {/* Gallery Grid (Sharp Square Format) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 mb-16">
           {filteredItems.map((item, idx) => (
             <div
               key={idx}
-              className="group bg-pure-white dark:bg-dark-card rounded-[32px] sm:rounded-[36px] overflow-hidden border border-carbon/10 dark:border-dark-border shadow-subtle-hover flex flex-col justify-between"
+              className="group bg-pure-white dark:bg-dark-card overflow-hidden border border-carbon/15 dark:border-dark-border shadow-subtle-hover flex flex-col justify-between hover:border-carbon/30 transition-all"
             >
               <div className="relative aspect-[4/3] bg-slate/10 overflow-hidden">
                 <img
@@ -199,31 +199,33 @@ export default function GalleryPage({ onOpenQuote }) {
                   loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-
-                <div className="absolute top-4 left-4">
-                  <span className="px-3 py-1 rounded-[12px] bg-pure-white/95 dark:bg-dark-card/95 backdrop-blur-md text-[11px] font-bold text-carbon dark:text-dark-text uppercase border border-carbon/5 dark:border-dark-border shadow-xs">
-                    {item.category}
+                <div className="absolute top-3 left-3">
+                  <span className="px-2.5 py-1 bg-pure-white/95 dark:bg-dark-card/95 text-[10px] sm:text-[11px] font-bold text-carbon dark:text-dark-text uppercase tracking-wider border-l-2 border-emerald-500 shadow-sm">
+                    {item.tag}
                   </span>
                 </div>
               </div>
 
-              <div className="p-5 sm:p-6 flex items-center justify-between">
+              <div className="p-4 sm:p-5 flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-bold text-carbon dark:text-dark-text font-display">{item.title}</h3>
-                  <span className="text-xs text-mist dark:text-dark-muted font-medium">{item.tag}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-vivid-teal block">
+                    {item.category}
+                  </span>
+                  <h4 className="text-sm sm:text-base font-bold text-carbon dark:text-dark-text font-display mt-0.5">
+                    {item.title}
+                  </h4>
                 </div>
-
                 <button
-                  onClick={() => onOpenQuote(item.title)}
-                  className="text-xs font-bold text-vivid-teal hover:underline flex items-center gap-1 shrink-0 ml-2"
+                  onClick={() => onOpenQuote(`${item.title} - Site Quote`)}
+                  className="shrink-0 px-3 py-1.5 bg-vivid-teal hover:bg-teal-hover text-carbon text-xs font-bold transition-all shadow-sm border border-vivid-teal cursor-pointer"
                 >
-                  <span>Book</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  Free Quote
                 </button>
               </div>
             </div>
           ))}
         </div>
+
       </div>
     </div>
   );
