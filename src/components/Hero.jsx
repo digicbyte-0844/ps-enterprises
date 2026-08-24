@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
   ArrowUpRight,
   ShieldCheck,
@@ -13,10 +13,19 @@ export default function Hero({ onOpenQuote }) {
   const desktopRefs = [useRef(null), useRef(null)];
   const mobileRefs = [useRef(null), useRef(null)];
   const [activeVideo, setActiveVideo] = useState(0);
+  const [videoLoaded, setVideoLoaded] = useState({ 0: false, 1: false });
 
   const videoSources = [
-    { src: '/kids-playing.mp4', label: 'Balcony Protection' },
-    { src: '/kids_grill.mp4', label: 'SS 316 Invisible Grills' },
+    {
+      src: '/kids-playing.mp4',
+      poster: '/images/hero-balcony.jpg',
+      label: 'Balcony Protection'
+    },
+    {
+      src: '/kids_grill.mp4',
+      poster: '/images/invisible-grill-toddler.jpg',
+      label: 'SS 316 Invisible Grills'
+    },
   ];
 
   // Dynamic Rotating Words
@@ -43,8 +52,8 @@ export default function Hero({ onOpenQuote }) {
     return () => clearInterval(interval);
   }, [rotatingWords.length]);
 
-  // Robust Mobile & Desktop Playback Controller
-  const playVideoElements = (index) => {
+  // Instant Playback Trigger for immediate 0ms video start
+  const playVideoElements = useCallback((index) => {
     const dEl = desktopRefs[index]?.current;
     const mEl = mobileRefs[index]?.current;
 
@@ -55,13 +64,17 @@ export default function Hero({ onOpenQuote }) {
         el.setAttribute('muted', '');
         el.setAttribute('playsinline', 'true');
         el.setAttribute('webkit-playsinline', 'true');
-        const playPromise = el.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(() => {});
+        
+        // Immediate playback attempt
+        const promise = el.play();
+        if (promise !== undefined) {
+          promise.catch(() => {
+            // Autoplay policy fallback: re-trigger on first interaction
+          });
         }
       }
     });
-  };
+  }, []);
 
   const handleVideoEnded = (index) => {
     const next = (index + 1) % videoSources.length;
@@ -78,13 +91,23 @@ export default function Hero({ onOpenQuote }) {
     });
   };
 
+  const handleVideoCanPlay = (idx) => {
+    setVideoLoaded((prev) => ({ ...prev, [idx]: true }));
+    if (idx === activeVideo) {
+      playVideoElements(idx);
+    }
+  };
+
+  // Immediate start on mount
   useEffect(() => {
     playVideoElements(activeVideo);
-  }, [activeVideo]);
+  }, [activeVideo, playVideoElements]);
 
+  // Universal Mobile Touch/Scroll Instant Autoplay Unlocker
   useEffect(() => {
     const unlockMobileAutoplay = () => {
-      playVideoElements(activeVideo);
+      playVideoElements(0);
+      playVideoElements(1);
     };
 
     window.addEventListener('touchstart', unlockMobileAutoplay, { passive: true, once: true });
@@ -96,7 +119,7 @@ export default function Hero({ onOpenQuote }) {
       window.removeEventListener('click', unlockMobileAutoplay);
       window.removeEventListener('scroll', unlockMobileAutoplay);
     };
-  }, [activeVideo]);
+  }, [playVideoElements]);
 
   const stats = [
     { number: "10,000+", color: "text-emerald-400", label: "Homes Protected", sub: "Gachibowli, HITEC City & Kokapet", icon: ShieldCheck },
@@ -112,25 +135,41 @@ export default function Hero({ onOpenQuote }) {
       {/* ========================================================================= */}
       <section className="hidden lg:flex relative min-h-[92vh] w-full items-center overflow-hidden bg-carbon">
         
-        {/* Full-Bleed Dual-Video Player Container (Sharp Edges) */}
-        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none bg-black">
+        {/* Full-Bleed Dual-Video Player Container with Instant High-Clarity Backdrop */}
+        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none bg-carbon">
+          
+          {/* Instant 0ms Visual Backdrop Image (Never a black void while video initializes) */}
+          <img
+            src="/images/hero-balcony.jpg"
+            alt="PS Safetynets Solutions Balcony Protection"
+            fetchPriority="high"
+            className="absolute inset-0 w-full h-full object-cover z-0"
+          />
+
           {videoSources.map((v, idx) => (
             <video
               key={idx}
               ref={desktopRefs[idx]}
               src={v.src}
+              poster={v.poster}
               autoPlay
               muted
               playsInline
               preload="auto"
+              disablePictureInPicture
+              disableRemotePlayback
+              onCanPlay={() => handleVideoCanPlay(idx)}
+              onLoadedData={() => handleVideoCanPlay(idx)}
               onEnded={() => handleVideoEnded(idx)}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-                idx === activeVideo ? 'opacity-90 z-10 scale-100' : 'opacity-0 z-0 scale-105 pointer-events-none'
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
+                idx === activeVideo && videoLoaded[idx]
+                  ? 'opacity-90 z-10 scale-100'
+                  : 'opacity-0 z-0 scale-105 pointer-events-none'
               }`}
             />
           ))}
 
-          {/* Subtle Scrim */}
+          {/* Subtle Scrim Gradient */}
           <div className="absolute inset-0 bg-gradient-to-r from-carbon/92 via-transparent to-carbon/80 z-20" />
         </div>
 
@@ -220,27 +259,46 @@ export default function Hero({ onOpenQuote }) {
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. MOBILE VIEW (lg:hidden): Sharp Square Format Video & Metrics */}
+      {/* 2. MOBILE VIEW (lg:hidden): Instant 0ms Visual & Video Scene */}
       {/* ========================================================================= */}
       <section className="lg:hidden w-full bg-carbon pt-16 pb-6">
         
-        {/* Pure Dual-Video Scene (Sharp Square Ratio) */}
-        <div className="w-full relative overflow-hidden bg-black aspect-[4/3] sm:aspect-video shadow-2xl">
+        {/* Pure Dual-Video Scene with Instant Backdrop Image (0ms perceptual delay) */}
+        <div className="w-full relative overflow-hidden bg-carbon aspect-[4/3] sm:aspect-video shadow-2xl">
+          
+          {/* Instant 0ms Image Backdrop */}
+          <img
+            src="/images/hero-balcony.jpg"
+            alt="Balcony Safety Netting Hyderabad"
+            fetchPriority="high"
+            className="absolute inset-0 w-full h-full object-cover z-0"
+          />
+
           {videoSources.map((v, idx) => (
             <video
               key={idx}
               ref={mobileRefs[idx]}
               src={v.src}
+              poster={v.poster}
               autoPlay
               muted
               playsInline
               preload="auto"
+              disablePictureInPicture
+              disableRemotePlayback
+              onCanPlay={() => handleVideoCanPlay(idx)}
+              onLoadedData={() => handleVideoCanPlay(idx)}
               onEnded={() => handleVideoEnded(idx)}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-                idx === activeVideo ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
+                idx === activeVideo && videoLoaded[idx]
+                  ? 'opacity-100 z-10'
+                  : 'opacity-0 z-0 pointer-events-none'
               }`}
             />
           ))}
+
+          {/* Scrim Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-carbon/90 via-transparent to-carbon/20 z-20 pointer-events-none" />
         </div>
 
         {/* Dedicated Mobile Action Strip & 4 Sharp Trust Stats */}

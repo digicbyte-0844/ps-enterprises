@@ -7,13 +7,13 @@ const ThemeContext = createContext({
 
 export function ThemeProvider({ children }) {
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Check localStorage or system preference
+    // Default is explicitly LIGHT MODE
     try {
       const savedTheme = localStorage.getItem('ps_theme');
       if (savedTheme) {
         return savedTheme === 'dark';
       }
-      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return false; // Always default to Light Mode
     } catch (e) {
       return false;
     }
