@@ -1,12 +1,13 @@
-﻿{
-  "": "node_modules/wrangler/config-schema.json",
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ps-enterprises",
-  "compatibility_date": "2026-08-20",
+  "compatibility_date": "2026-08-24",
   "observability": {
     "enabled": true
   },
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
+    "html_handling": "auto-trailing-slash"
   }
 }
