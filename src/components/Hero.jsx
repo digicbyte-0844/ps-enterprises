@@ -6,14 +6,14 @@ import {
   ArrowRight,
   Shield,
   Clock,
-  Award
+  Award,
+  Play
 } from 'lucide-react';
 
 export default function Hero({ onOpenQuote }) {
   const desktopRefs = [useRef(null), useRef(null)];
   const mobileRefs = [useRef(null), useRef(null)];
   const [activeVideo, setActiveVideo] = useState(0);
-  const [videoLoaded, setVideoLoaded] = useState({ 0: false, 1: false });
 
   const videoSources = [
     {
@@ -52,7 +52,7 @@ export default function Hero({ onOpenQuote }) {
     return () => clearInterval(interval);
   }, [rotatingWords.length]);
 
-  // Instant Playback Trigger for immediate 0ms video start
+  // Robust Direct Video Playback Function
   const playVideoElements = useCallback((index) => {
     const dEl = desktopRefs[index]?.current;
     const mEl = mobileRefs[index]?.current;
@@ -65,11 +65,10 @@ export default function Hero({ onOpenQuote }) {
         el.setAttribute('playsinline', 'true');
         el.setAttribute('webkit-playsinline', 'true');
         
-        // Immediate playback attempt
         const promise = el.play();
         if (promise !== undefined) {
           promise.catch(() => {
-            // Autoplay policy fallback: re-trigger on first interaction
+            // Handled via user interaction unlockers below
           });
         }
       }
@@ -79,31 +78,15 @@ export default function Hero({ onOpenQuote }) {
   const handleVideoEnded = (index) => {
     const next = (index + 1) % videoSources.length;
     setActiveVideo(next);
-
-    const dEl = desktopRefs[next]?.current;
-    const mEl = mobileRefs[next]?.current;
-
-    [dEl, mEl].forEach((el) => {
-      if (el) {
-        el.currentTime = 0;
-        el.play().catch(() => {});
-      }
-    });
+    playVideoElements(next);
   };
 
-  const handleVideoCanPlay = (idx) => {
-    setVideoLoaded((prev) => ({ ...prev, [idx]: true }));
-    if (idx === activeVideo) {
-      playVideoElements(idx);
-    }
-  };
-
-  // Immediate start on mount
+  // Play active video whenever active index changes or on mount
   useEffect(() => {
     playVideoElements(activeVideo);
   }, [activeVideo, playVideoElements]);
 
-  // Universal Mobile Touch/Scroll Instant Autoplay Unlocker
+  // Universal Mobile Autoplay Unlocker on First Touch/Scroll/Click
   useEffect(() => {
     const unlockMobileAutoplay = () => {
       playVideoElements(0);
@@ -111,11 +94,13 @@ export default function Hero({ onOpenQuote }) {
     };
 
     window.addEventListener('touchstart', unlockMobileAutoplay, { passive: true, once: true });
+    window.addEventListener('touchend', unlockMobileAutoplay, { passive: true, once: true });
     window.addEventListener('click', unlockMobileAutoplay, { passive: true, once: true });
     window.addEventListener('scroll', unlockMobileAutoplay, { passive: true, once: true });
 
     return () => {
       window.removeEventListener('touchstart', unlockMobileAutoplay);
+      window.removeEventListener('touchend', unlockMobileAutoplay);
       window.removeEventListener('click', unlockMobileAutoplay);
       window.removeEventListener('scroll', unlockMobileAutoplay);
     };
@@ -133,12 +118,12 @@ export default function Hero({ onOpenQuote }) {
       {/* ========================================================================= */}
       {/* 1. DESKTOP / TABLET VIEW (lg:flex): Sharp Square Format with Rich Accents */}
       {/* ========================================================================= */}
-      <section className="hidden lg:flex relative min-h-[92vh] w-full items-center overflow-hidden bg-carbon">
+      <section className="hidden lg:flex relative min-h-[92vh] w-full items-center overflow-hidden bg-carbon text-left">
         
         {/* Full-Bleed Dual-Video Player Container with Instant High-Clarity Backdrop */}
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none bg-carbon">
           
-          {/* Instant 0ms Visual Backdrop Image (Never a black void while video initializes) */}
+          {/* Instant 0ms Visual Backdrop Image */}
           <img
             src="/images/hero-balcony.jpg"
             alt="PS Safetynets Solutions Balcony Protection"
@@ -149,7 +134,13 @@ export default function Hero({ onOpenQuote }) {
           {videoSources.map((v, idx) => (
             <video
               key={idx}
-              ref={desktopRefs[idx]}
+              ref={(el) => {
+                desktopRefs[idx].current = el;
+                if (el && idx === activeVideo) {
+                  el.muted = true;
+                  el.play().catch(() => {});
+                }
+              }}
               src={v.src}
               poster={v.poster}
               autoPlay
@@ -158,11 +149,9 @@ export default function Hero({ onOpenQuote }) {
               preload="auto"
               disablePictureInPicture
               disableRemotePlayback
-              onCanPlay={() => handleVideoCanPlay(idx)}
-              onLoadedData={() => handleVideoCanPlay(idx)}
               onEnded={() => handleVideoEnded(idx)}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
-                idx === activeVideo && videoLoaded[idx]
+                idx === activeVideo
                   ? 'opacity-90 z-10 scale-100'
                   : 'opacity-0 z-0 scale-105 pointer-events-none'
               }`}
@@ -173,97 +162,109 @@ export default function Hero({ onOpenQuote }) {
           <div className="absolute inset-0 bg-gradient-to-r from-carbon/92 via-transparent to-carbon/80 z-20" />
         </div>
 
-        {/* Main Desktop Container */}
-        <div className="relative z-30 w-full max-w-7xl mx-auto px-8 lg:px-12 py-24">
-          <div className="grid grid-cols-12 gap-8 items-center">
+        {/* Content Container */}
+        <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 w-full">
+          <div className="max-w-3xl space-y-6 sm:space-y-8">
             
-            {/* Left Column */}
-            <div className="col-span-7 max-w-2xl text-left">
-              {/* Sharp Eyebrow Pill */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-carbon/75 backdrop-blur-md border-l-2 border-vivid-teal border-t border-r border-b border-pure-white/20 text-pure-white mb-4 shadow-sm">
-                <span className="w-2 h-2 bg-emerald-400 animate-pulse" />
-                <span className="text-[11px] font-bold uppercase tracking-wider text-vivid-teal">
-                  HYDERABAD'S PREMIER SAFETY ENCLOSURES
-                </span>
-              </div>
-
-              <h1 className="text-4xl xl:text-5xl 2xl:text-[56px] font-bold text-pure-white tracking-tight leading-[1.12] mb-4 drop-shadow-md font-display">
-                Unseen protection for <br />
-                <span className="relative inline-block font-extrabold text-vivid-teal min-h-[1.15em]">
-                  <span
-                    className={`inline-block transition-all duration-300 transform ${
-                      isFading
-                        ? 'opacity-0 translate-y-1.5 blur-xs'
-                        : 'opacity-100 translate-y-0 blur-none'
-                    }`}
-                  >
-                    {rotatingWords[currentWordIndex]}
-                  </span>
-                  <span className="block h-[3px] bg-vivid-teal mt-0.5 w-full" />
-                </span>
-              </h1>
-
-              <p className="text-pure-white/90 text-sm xl:text-base font-normal max-w-lg mb-6 leading-relaxed drop-shadow-sm">
-                Marine-grade <strong className="text-amber-300 font-semibold">SS 316 invisible grills</strong> and <strong className="text-emerald-300 font-semibold">UV-treated copolymer nets</strong> engineered to protect your little ones without blocking your skyline view.
-              </p>
-
-              {/* Sharp Action Buttons */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => onOpenQuote()}
-                  className="inline-flex items-center justify-center gap-2 bg-vivid-teal hover:bg-teal-hover text-carbon font-bold text-xs xl:text-sm px-6 py-3.5 transition-all duration-200 shadow-xl hover:scale-[1.02] active:scale-[0.98] group cursor-pointer border border-vivid-teal"
-                >
-                  <span>Book Free Doorstep Measurement</span>
-                  <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                </button>
-
-                <a
-                  href="#services"
-                  className="inline-flex items-center justify-center gap-1.5 bg-carbon/60 hover:bg-carbon/80 backdrop-blur-md text-pure-white font-semibold text-xs xl:text-sm px-5 py-3.5 border border-pure-white/30 transition-all hover:scale-[1.02]"
-                >
-                  <span>Explore 5 Solutions</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-vivid-teal" />
-                </a>
-              </div>
+            {/* Top Verified Location & Standard Badge */}
+            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-pure-white/10 backdrop-blur-md border-l-2 border-emerald-400 border-t border-r border-b border-pure-white/15 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              <span className="text-xs font-bold text-pure-white uppercase tracking-wider">
+                HYDERABAD • ISO 9001:2015 CERTIFIED RIGGING
+              </span>
             </div>
 
-            {/* Right Column: 4 Sharp Square Stat Cards */}
-            <div className="col-span-5 flex flex-col items-end gap-2.5 max-w-xs ml-auto">
-              {stats.map((item, idx) => {
-                const Icon = item.icon;
+            {/* Headline with Dynamic Rotating Words */}
+            <div className="space-y-2">
+              <h1 className="text-4xl sm:text-6xl xl:text-7xl font-bold tracking-tight text-pure-white leading-[1.08] font-display">
+                Protecting{' '}
+                <span
+                  className={`inline-block text-vivid-teal transition-all duration-300 transform ${
+                    isFading ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
+                  }`}
+                >
+                  {rotatingWords[currentWordIndex]}
+                </span>
+                <br />
+                With Zero View Blockage.
+              </h1>
+              <p className="text-base sm:text-xl text-pure-white/80 font-normal max-w-2xl pt-2 leading-relaxed">
+                Hyderabad's trusted provider of UV-stabilized copolymer pigeon safety netting and Marine Grade SS 316 invisible grills. Stamped 5-year replacement guarantee with 30-minute laser inspection dispatch.
+              </p>
+            </div>
+
+            {/* CTAs (Sharp Square Format) */}
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <button
+                onClick={() => onOpenQuote()}
+                className="inline-flex items-center justify-center gap-2.5 bg-vivid-teal hover:bg-teal-hover text-carbon font-bold text-sm sm:text-base py-4 px-8 shadow-xl hover:scale-102 active:scale-98 transition-all cursor-pointer border border-vivid-teal"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Book Free Measurement</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <a
+                href="#services"
+                className="inline-flex items-center justify-center gap-2 bg-pure-white/10 hover:bg-pure-white/20 text-pure-white font-semibold text-sm sm:text-base py-4 px-6 border border-pure-white/20 backdrop-blur-sm transition-all"
+              >
+                <span>Explore Solutions</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </a>
+            </div>
+
+            {/* 4 Sharp Metric Badges */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
+              {stats.map((stat, i) => {
+                const IconComponent = stat.icon;
                 return (
                   <div
-                    key={idx}
-                    className="w-full bg-carbon/75 hover:bg-carbon/90 backdrop-blur-md p-3.5 border-l-4 border-l-vivid-teal border-t border-r border-b border-pure-white/15 text-left shadow-lg transition-all duration-200 hover:translate-x-[-4px] flex items-center gap-3.5"
+                    key={i}
+                    className="p-3 bg-pure-white/10 backdrop-blur-md border border-pure-white/15 text-pure-white"
                   >
-                    <div className="w-9 h-9 bg-pure-white/10 text-vivid-teal flex items-center justify-center shrink-0 border border-pure-white/10">
-                      <Icon className="w-4 h-4" />
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <IconComponent className="w-3.5 h-3.5 text-vivid-teal" />
+                      <span className={`text-base sm:text-lg font-bold font-display ${stat.color}`}>
+                        {stat.number}
+                      </span>
                     </div>
-                    <div>
-                      <div className={`text-base font-extrabold ${item.color} tracking-tight leading-none`}>
-                        {item.number}
-                      </div>
-                      <div className="text-xs font-bold text-pure-white mt-1 leading-tight">
-                        {item.label}
-                      </div>
-                      <div className="text-[10px] text-pure-white/70 font-normal mt-0.5 leading-none">
-                        {item.sub}
-                      </div>
-                    </div>
+                    <div className="text-xs font-bold text-pure-white leading-tight">{stat.label}</div>
+                    <div className="text-[10px] text-pure-white/60 leading-tight mt-0.5">{stat.sub}</div>
                   </div>
                 );
               })}
             </div>
+
           </div>
+        </div>
+
+        {/* Video Switcher Dots */}
+        <div className="absolute bottom-6 right-8 z-30 flex items-center gap-2 bg-carbon/60 backdrop-blur-md p-2 border border-pure-white/20">
+          {videoSources.map((v, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                setActiveVideo(idx);
+                playVideoElements(idx);
+              }}
+              className={`px-3 py-1 text-xs font-bold transition-all cursor-pointer ${
+                activeVideo === idx
+                  ? 'bg-vivid-teal text-carbon'
+                  : 'bg-pure-white/10 text-pure-white/80 hover:bg-pure-white/20'
+              }`}
+            >
+              {v.label}
+            </button>
+          ))}
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. MOBILE VIEW (lg:hidden): Instant 0ms Visual & Video Scene */}
+      {/* 2. MOBILE VIEW (lg:hidden): Instant Video Scene With Guaranteed Autoplay */}
       {/* ========================================================================= */}
-      <section className="lg:hidden w-full bg-carbon pt-16 pb-6">
+      <section className="lg:hidden w-full bg-carbon pt-16 pb-6 text-left">
         
-        {/* Pure Dual-Video Scene with Instant Backdrop Image (0ms perceptual delay) */}
+        {/* Dual-Video Scene Container */}
         <div className="w-full relative overflow-hidden bg-carbon aspect-[4/3] sm:aspect-video shadow-2xl">
           
           {/* Instant 0ms Image Backdrop */}
@@ -277,7 +278,13 @@ export default function Hero({ onOpenQuote }) {
           {videoSources.map((v, idx) => (
             <video
               key={idx}
-              ref={mobileRefs[idx]}
+              ref={(el) => {
+                mobileRefs[idx].current = el;
+                if (el && idx === activeVideo) {
+                  el.muted = true;
+                  el.play().catch(() => {});
+                }
+              }}
               src={v.src}
               poster={v.poster}
               autoPlay
@@ -286,11 +293,9 @@ export default function Hero({ onOpenQuote }) {
               preload="auto"
               disablePictureInPicture
               disableRemotePlayback
-              onCanPlay={() => handleVideoCanPlay(idx)}
-              onLoadedData={() => handleVideoCanPlay(idx)}
               onEnded={() => handleVideoEnded(idx)}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
-                idx === activeVideo && videoLoaded[idx]
+                idx === activeVideo
                   ? 'opacity-100 z-10'
                   : 'opacity-0 z-0 pointer-events-none'
               }`}
@@ -299,6 +304,26 @@ export default function Hero({ onOpenQuote }) {
 
           {/* Scrim Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-carbon/90 via-transparent to-carbon/20 z-20 pointer-events-none" />
+
+          {/* Mobile Video Switcher Pill */}
+          <div className="absolute top-3 right-3 z-30 flex items-center gap-1 bg-carbon/80 backdrop-blur-md p-1 border border-pure-white/20">
+            {videoSources.map((v, idx) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  setActiveVideo(idx);
+                  playVideoElements(idx);
+                }}
+                className={`px-2.5 py-1 text-[10px] font-bold transition-all cursor-pointer ${
+                  activeVideo === idx
+                    ? 'bg-vivid-teal text-carbon'
+                    : 'bg-pure-white/10 text-pure-white/80'
+                }`}
+              >
+                {idx === 0 ? 'Pigeon Net' : 'Invisible Grill'}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Dedicated Mobile Action Strip & 4 Sharp Trust Stats */}
@@ -307,7 +332,7 @@ export default function Hero({ onOpenQuote }) {
           <div className="flex flex-col gap-2">
             <button
               onClick={() => onOpenQuote()}
-              className="w-full inline-flex items-center justify-center gap-2 bg-vivid-teal hover:bg-teal-hover text-carbon font-bold text-xs sm:text-sm py-3.5 px-4 shadow-lg active:scale-98 transition-all border border-vivid-teal"
+              className="w-full inline-flex items-center justify-center gap-2 bg-vivid-teal hover:bg-teal-hover text-carbon font-bold text-xs sm:text-sm py-3.5 px-4 shadow-lg active:scale-98 transition-all border border-vivid-teal cursor-pointer"
             >
               <Sparkles className="w-4 h-4" />
               <span>Book Free Doorstep Measurement</span>
@@ -318,28 +343,44 @@ export default function Hero({ onOpenQuote }) {
               className="w-full inline-flex items-center justify-center gap-1.5 bg-pure-white/10 hover:bg-pure-white/20 text-pure-white font-semibold text-xs py-3 px-4 border border-pure-white/20 active:scale-98 transition-all"
             >
               <span>Explore 5 Solutions</span>
-              <ArrowRight className="w-3.5 h-3.5 text-vivid-teal" />
+              <ArrowRight className="w-3.5 h-3.5" />
             </a>
           </div>
 
-          {/* 4 Sharp Trust Metrics in Clean 2x2 Grid */}
-          <div className="grid grid-cols-2 gap-2 pt-1">
-            {stats.map((st, idx) => (
-              <div
-                key={idx}
-                className="bg-pure-white/5 p-3 border-l-2 border-l-vivid-teal border-t border-r border-b border-pure-white/10 text-left"
-              >
-                <div className={`text-sm font-extrabold ${st.color} tracking-tight leading-none`}>
-                  {st.number}
+          {/* Dynamic Rotating Headline on Mobile */}
+          <div className="bg-pure-white/5 border border-pure-white/10 p-3.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-0.5">
+              HYDERABAD • ISO 9001:2015
+            </span>
+            <div className="text-sm font-bold text-pure-white leading-tight font-display">
+              Protecting{' '}
+              <span className="text-vivid-teal">
+                {rotatingWords[currentWordIndex]}
+              </span>{' '}
+              with zero view blockage.
+            </div>
+          </div>
+
+          {/* 4 Sharp Mobile Stats */}
+          <div className="grid grid-cols-2 gap-2">
+            {stats.map((stat, i) => {
+              const IconComp = stat.icon;
+              return (
+                <div
+                  key={i}
+                  className="p-2.5 bg-pure-white/10 border border-pure-white/15 text-pure-white"
+                >
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <IconComp className="w-3.5 h-3.5 text-vivid-teal" />
+                    <span className={`text-sm font-bold font-display ${stat.color}`}>
+                      {stat.number}
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-bold text-pure-white leading-tight">{stat.label}</div>
+                  <div className="text-[9px] text-pure-white/60 leading-tight mt-0.5">{stat.sub}</div>
                 </div>
-                <div className="text-xs font-bold text-pure-white mt-1 leading-tight">
-                  {st.label}
-                </div>
-                <div className="text-[10px] text-pure-white/70 font-normal mt-0.5 leading-tight line-clamp-1">
-                  {st.sub}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
