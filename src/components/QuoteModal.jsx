@@ -31,6 +31,13 @@ export default function QuoteModal({ isOpen, initialService = '', onClose }) {
     setTimeout(() => {
       setLoading(false);
       setSubmitted(true);
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'ads_conversion_Sign_up_1', {
+          event_category: 'Lead',
+          event_label: 'Doorstep Quote Modal',
+          value: 1.0
+        });
+      }
       try {
         confetti({
           particleCount: 80,

@@ -65,6 +65,13 @@ _Sent via Contact Form on PS Safetynets Solutions Website_`;
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'ads_conversion_Sign_up_1', {
+        event_category: 'Lead',
+        event_label: 'Contact Page Inspection Form',
+        value: 1.0
+      });
+    }
     try {
       confetti({
         particleCount: 70,
