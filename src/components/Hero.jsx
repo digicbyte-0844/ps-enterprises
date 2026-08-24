@@ -142,7 +142,7 @@ export default function Hero({ onOpenQuote }) {
           <img
             src="/images/hero-balcony.jpg"
             alt="PS Safetynets Solutions Balcony Protection"
-            fetchPriority="high"
+            fetchpriority="high"
             className="absolute inset-0 w-full h-full object-cover z-0"
           />
 
@@ -270,7 +270,7 @@ export default function Hero({ onOpenQuote }) {
           <img
             src="/images/hero-balcony.jpg"
             alt="Balcony Safety Netting Hyderabad"
-            fetchPriority="high"
+            fetchpriority="high"
             className="absolute inset-0 w-full h-full object-cover z-0"
           />
 
