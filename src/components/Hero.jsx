@@ -11,8 +11,9 @@ import {
 } from 'lucide-react';
 
 export default function Hero({ onOpenQuote }) {
-  const desktopRefs = [useRef(null), useRef(null)];
-  const mobileRefs = [useRef(null), useRef(null)];
+  const desktopRef0 = useRef(null);
+  const desktopRef1 = useRef(null);
+  const mobileRef = useRef(null);
   const [activeVideo, setActiveVideo] = useState(0);
 
   const videoSources = [
@@ -52,59 +53,64 @@ export default function Hero({ onOpenQuote }) {
     return () => clearInterval(interval);
   }, [rotatingWords.length]);
 
-  // Robust Direct Video Playback Function
-  const playVideoElements = useCallback((index) => {
-    const dEl = desktopRefs[index]?.current;
-    const mEl = mobileRefs[index]?.current;
-
-    [dEl, mEl].forEach((el) => {
-      if (el) {
-        el.muted = true;
-        el.defaultMuted = true;
-        el.setAttribute('muted', '');
-        el.setAttribute('playsinline', 'true');
-        el.setAttribute('webkit-playsinline', 'true');
-        
-        const promise = el.play();
-        if (promise !== undefined) {
-          promise.catch(() => {
-            // Handled via user interaction unlockers below
-          });
+  // Robust play caller that handles browser autoplay restrictions
+  const startAllVideos = useCallback(() => {
+    [desktopRef0.current, desktopRef1.current, mobileRef.current].forEach((vid) => {
+      if (vid) {
+        vid.muted = true;
+        vid.defaultMuted = true;
+        vid.setAttribute('muted', '');
+        vid.setAttribute('playsinline', 'true');
+        vid.setAttribute('webkit-playsinline', 'true');
+        const playPromise = vid.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {});
         }
       }
     });
   }, []);
 
-  const handleVideoEnded = (index) => {
-    const next = (index + 1) % videoSources.length;
-    setActiveVideo(next);
-    playVideoElements(next);
-  };
-
-  // Play active video whenever active index changes or on mount
+  // Desktop automatic smooth alternation between Video 0 and Video 1 (12s interval per clip)
   useEffect(() => {
-    playVideoElements(activeVideo);
-  }, [activeVideo, playVideoElements]);
+    const timer = setInterval(() => {
+      setActiveVideo((prev) => (prev === 0 ? 1 : 0));
+    }, 11000);
 
-  // Universal Mobile Autoplay Unlocker on First Touch/Scroll/Click
+    return () => clearInterval(timer);
+  }, []);
+
+  // Start videos on mount and ensure continuous play
   useEffect(() => {
-    const unlockMobileAutoplay = () => {
-      playVideoElements(0);
-      playVideoElements(1);
+    startAllVideos();
+  }, [startAllVideos]);
+
+  // Mobile User Interaction Autoplay Unlocker
+  useEffect(() => {
+    const handleUnlock = () => {
+      startAllVideos();
     };
 
-    window.addEventListener('touchstart', unlockMobileAutoplay, { passive: true, once: true });
-    window.addEventListener('touchend', unlockMobileAutoplay, { passive: true, once: true });
-    window.addEventListener('click', unlockMobileAutoplay, { passive: true, once: true });
-    window.addEventListener('scroll', unlockMobileAutoplay, { passive: true, once: true });
+    window.addEventListener('touchstart', handleUnlock, { passive: true, once: true });
+    window.addEventListener('touchend', handleUnlock, { passive: true, once: true });
+    window.addEventListener('click', handleUnlock, { passive: true, once: true });
+    window.addEventListener('scroll', handleUnlock, { passive: true, once: true });
 
     return () => {
-      window.removeEventListener('touchstart', unlockMobileAutoplay);
-      window.removeEventListener('touchend', unlockMobileAutoplay);
-      window.removeEventListener('click', unlockMobileAutoplay);
-      window.removeEventListener('scroll', unlockMobileAutoplay);
+      window.removeEventListener('touchstart', handleUnlock);
+      window.removeEventListener('touchend', handleUnlock);
+      window.removeEventListener('click', handleUnlock);
+      window.removeEventListener('scroll', handleUnlock);
     };
-  }, [playVideoElements]);
+  }, [startAllVideos]);
+
+  // When active video switches on mobile, trigger mobile play
+  useEffect(() => {
+    if (mobileRef.current) {
+      mobileRef.current.muted = true;
+      mobileRef.current.currentTime = 0;
+      mobileRef.current.play().catch(() => {});
+    }
+  }, [activeVideo]);
 
   const stats = [
     { number: "10,000+", color: "text-emerald-400", label: "Homes Protected", sub: "Gachibowli, HITEC City & Kokapet", icon: ShieldCheck },
@@ -116,11 +122,11 @@ export default function Hero({ onOpenQuote }) {
   return (
     <>
       {/* ========================================================================= */}
-      {/* 1. DESKTOP / TABLET VIEW (lg:flex): Sharp Square Format with Rich Accents */}
+      {/* 1. DESKTOP / TABLET VIEW (lg:flex): Seamless Dual-Video Crossfade */}
       {/* ========================================================================= */}
       <section className="hidden lg:flex relative min-h-[92vh] w-full items-center overflow-hidden bg-carbon text-left">
         
-        {/* Full-Bleed Dual-Video Player Container with Instant High-Clarity Backdrop */}
+        {/* Dual-Video Crossfading Container (Both keep playing and loop continuously so 0 buffering pause happens) */}
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none bg-carbon">
           
           {/* Instant 0ms Visual Backdrop Image */}
@@ -131,34 +137,45 @@ export default function Hero({ onOpenQuote }) {
             className="absolute inset-0 w-full h-full object-cover z-0"
           />
 
-          {videoSources.map((v, idx) => (
-            <video
-              key={idx}
-              ref={(el) => {
-                desktopRefs[idx].current = el;
-                if (el && idx === activeVideo) {
-                  el.muted = true;
-                  el.play().catch(() => {});
-                }
-              }}
-              src={v.src}
-              poster={v.poster}
-              autoPlay
-              muted
-              playsInline
-              preload="auto"
-              disablePictureInPicture
-              disableRemotePlayback
-              onEnded={() => handleVideoEnded(idx)}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
-                idx === activeVideo
-                  ? 'opacity-90 z-10 scale-100'
-                  : 'opacity-0 z-0 scale-105 pointer-events-none'
-              }`}
-            />
-          ))}
+          {/* Desktop Video 0 (Kids Playing / Balcony Netting) */}
+          <video
+            ref={desktopRef0}
+            src={videoSources[0].src}
+            poster={videoSources[0].poster}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            disableRemotePlayback
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+              activeVideo === 0
+                ? 'opacity-90 z-10 scale-100'
+                : 'opacity-0 z-0 scale-105 pointer-events-none'
+            }`}
+          />
 
-          {/* Subtle Scrim Gradient */}
+          {/* Desktop Video 1 (SS 316 Invisible Grills) */}
+          <video
+            ref={desktopRef1}
+            src={videoSources[1].src}
+            poster={videoSources[1].poster}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            disableRemotePlayback
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+              activeVideo === 1
+                ? 'opacity-90 z-10 scale-100'
+                : 'opacity-0 z-0 scale-105 pointer-events-none'
+            }`}
+          />
+
+          {/* Scrim Gradient */}
           <div className="absolute inset-0 bg-gradient-to-r from-carbon/92 via-transparent to-carbon/80 z-20" />
         </div>
 
@@ -243,10 +260,7 @@ export default function Hero({ onOpenQuote }) {
           {videoSources.map((v, idx) => (
             <button
               key={idx}
-              onClick={() => {
-                setActiveVideo(idx);
-                playVideoElements(idx);
-              }}
+              onClick={() => setActiveVideo(idx)}
               className={`px-3 py-1 text-xs font-bold transition-all cursor-pointer ${
                 activeVideo === idx
                   ? 'bg-vivid-teal text-carbon'
@@ -260,47 +274,36 @@ export default function Hero({ onOpenQuote }) {
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. MOBILE VIEW (lg:hidden): Instant Video Scene With Guaranteed Autoplay */}
+      {/* 2. MOBILE VIEW (lg:hidden): Native Dedicated Looping Video Player */}
       {/* ========================================================================= */}
       <section className="lg:hidden w-full bg-carbon pt-16 pb-6 text-left">
         
-        {/* Dual-Video Scene Container */}
+        {/* Single Looping Mobile Video Player (Guaranteed 100% Autoplay on iOS & Android) */}
         <div className="w-full relative overflow-hidden bg-carbon aspect-[4/3] sm:aspect-video shadow-2xl">
           
           {/* Instant 0ms Image Backdrop */}
           <img
-            src="/images/hero-balcony.jpg"
+            src={videoSources[activeVideo].poster}
             alt="Balcony Safety Netting Hyderabad"
             fetchpriority="high"
             className="absolute inset-0 w-full h-full object-cover z-0"
           />
 
-          {videoSources.map((v, idx) => (
-            <video
-              key={idx}
-              ref={(el) => {
-                mobileRefs[idx].current = el;
-                if (el && idx === activeVideo) {
-                  el.muted = true;
-                  el.play().catch(() => {});
-                }
-              }}
-              src={v.src}
-              poster={v.poster}
-              autoPlay
-              muted
-              playsInline
-              preload="auto"
-              disablePictureInPicture
-              disableRemotePlayback
-              onEnded={() => handleVideoEnded(idx)}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out ${
-                idx === activeVideo
-                  ? 'opacity-100 z-10'
-                  : 'opacity-0 z-0 pointer-events-none'
-              }`}
-            />
-          ))}
+          {/* Native Looping Video */}
+          <video
+            ref={mobileRef}
+            key={videoSources[activeVideo].src}
+            src={videoSources[activeVideo].src}
+            poster={videoSources[activeVideo].poster}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            disableRemotePlayback
+            className="absolute inset-0 w-full h-full object-cover z-10"
+          />
 
           {/* Scrim Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-carbon/90 via-transparent to-carbon/20 z-20 pointer-events-none" />
@@ -310,10 +313,7 @@ export default function Hero({ onOpenQuote }) {
             {videoSources.map((v, idx) => (
               <button
                 key={idx}
-                onClick={() => {
-                  setActiveVideo(idx);
-                  playVideoElements(idx);
-                }}
+                onClick={() => setActiveVideo(idx)}
                 className={`px-2.5 py-1 text-[10px] font-bold transition-all cursor-pointer ${
                   activeVideo === idx
                     ? 'bg-vivid-teal text-carbon'
