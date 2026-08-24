@@ -1,6 +1,7 @@
 /**
  * Reliable Serverless Email Dispatcher for PS Safetynets Solutions
  * Sends direct lead payload to pssafetynetssolutions@gmail.com
+ * Secure FormSubmit Endpoint: 10594a937e70498bc8ff480b05d894e8
  */
 export async function sendEmailInquiry({
   name = '',
@@ -12,7 +13,8 @@ export async function sendEmailInquiry({
   message = '',
   formSource = 'Website Lead'
 }) {
-  const adminEmail = 'pssafetynetssolutions@gmail.com';
+  // Secure FormSubmit endpoint token linked to pssafetynetssolutions@gmail.com
+  const formEndpoint = '10594a937e70498bc8ff480b05d894e8';
 
   const payload = {
     _subject: `🚨 [NEW HYDERABAD INQUIRY] ${service || 'Safety Netting'} - ${name || 'Customer'} (${location || 'Hyderabad'})`,
@@ -30,7 +32,7 @@ export async function sendEmailInquiry({
   };
 
   try {
-    const response = await fetch(`https://formsubmit.co/ajax/${adminEmail}`, {
+    const response = await fetch(`https://formsubmit.co/ajax/${formEndpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -47,7 +49,6 @@ export async function sendEmailInquiry({
     }
   } catch (err) {
     console.warn('FormSubmit network fallback:', err);
-    // Even if network blocks FormSubmit, return fallback success so user is routed to WhatsApp/Gmail backup
     return { success: true, fallback: true };
   }
 }
