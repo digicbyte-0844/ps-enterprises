@@ -16,6 +16,8 @@ export async function sendEmailInquiry({
   // Secure FormSubmit endpoint token linked to pssafetynetssolutions@gmail.com
   const formEndpoint = '10594a937e70498bc8ff480b05d894e8';
 
+  const currentDomain = typeof window !== 'undefined' ? window.location.origin : 'https://pssafetynetssolutions.in';
+
   const payload = {
     _subject: `🚨 [NEW HYDERABAD INQUIRY] ${service || 'Safety Netting'} - ${name || 'Customer'} (${location || 'Hyderabad'})`,
     _template: 'table',
@@ -27,7 +29,7 @@ export async function sendEmailInquiry({
     'Requested Safety Solution': service || 'Safety Netting',
     'Preferred Inspection Date': preferredDate || 'Immediate / Earliest',
     'Requirement & Dimensions': message || 'Doorstep laser measurement requested',
-    'Submission Source': formSource,
+    'Submission Source': `${formSource} (${currentDomain})`,
     'Timestamp (IST)': new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
   };
 
