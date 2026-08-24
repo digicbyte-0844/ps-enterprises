@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import WhatsAppIcon from '../components/WhatsAppIcon';
 import confetti from 'canvas-confetti';
+import { sendEmailInquiry } from '../utils/sendEmailInquiry';
 
 export default function ServiceDetailPage({ onOpenQuote }) {
   const { id } = useParams();
@@ -37,9 +38,30 @@ export default function ServiceDetailPage({ onOpenQuote }) {
     preferredDate: '',
   });
   const [bookingSubmitted, setBookingSubmitted] = useState(false);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [phoneError, setPhoneError] = useState('');
 
-  const handleBookingSubmit = (e) => {
+  const handleBookingSubmit = async (e) => {
     e.preventDefault();
+    const cleaned = bookingForm.phone.replace(/[^0-9]/g, '');
+    if (cleaned.length < 10) {
+      setPhoneError('Please enter a valid 10-digit mobile number');
+      return;
+    }
+    setPhoneError('');
+    setBookingLoading(true);
+
+    await sendEmailInquiry({
+      name: bookingForm.name,
+      phone: bookingForm.phone,
+      location: bookingForm.location,
+      service: service.title,
+      preferredDate: bookingForm.preferredDate,
+      message: `Booked via ${service.title} page embedded form.`,
+      formSource: `Service Detail: ${service.title}`
+    });
+
+    setBookingLoading(false);
     setBookingSubmitted(true);
     try {
       confetti({
@@ -502,12 +524,21 @@ export default function ServiceDetailPage({ onOpenQuote }) {
                     </div>
                   </div>
 
+                  {phoneError && <p className="text-[10px] text-red-400 font-semibold">{phoneError}</p>}
+
                   <button
                     type="submit"
+                    disabled={bookingLoading}
                     className="w-full bg-vivid-teal hover:bg-teal-hover text-carbon font-bold py-3.5 transition-all flex items-center justify-center gap-2 shadow-md text-xs sm:text-sm mt-1 cursor-pointer border border-vivid-teal"
                   >
-                    <span>Confirm Free Inspection</span>
-                    <ArrowRight className="w-4 h-4" />
+                    {bookingLoading ? (
+                      <div className="w-4 h-4 border-2 border-carbon border-t-transparent animate-spin" />
+                    ) : (
+                      <>
+                        <span>Confirm Free Inspection</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
                   </button>
                 </form>
               ) : (
@@ -516,14 +547,46 @@ export default function ServiceDetailPage({ onOpenQuote }) {
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
                   <h4 className="text-lg font-bold text-pure-white mb-1 font-display">
-                    Booking Confirmed!
+                    Inspection Request Sent!
                   </h4>
-                  <p className="text-pure-white/80 text-xs mb-3">
-                    Our Hyderabad engineering team will contact you shortly on <strong>{bookingForm.phone}</strong>.
+                  <p className="text-pure-white/80 text-xs mb-3.5">
+                    Your request for <strong>{service.title}</strong> at <strong>{bookingForm.location}</strong> has been emailed to <strong>pssafetynetssolutions@gmail.com</strong>.
                   </p>
+
+                  <div className="flex flex-col sm:flex-row gap-2 mb-3">
+                    <a
+                      href={`https://wa.me/919900980207?text=Hi%20PS%20Safetynets%20Solutions%2C%20I%20just%20submitted%20an%20inspection%20request%20for%20${encodeURIComponent(
+                        service.title
+                      )}%20at%20${encodeURIComponent(bookingForm.location)}.%20Phone:%20${bookingForm.phone}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-3 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs shadow-sm transition-colors border border-[#25D366]"
+                    >
+                      <WhatsAppIcon className="w-4 h-4 fill-white" />
+                      <span>Send on WhatsApp</span>
+                    </a>
+
+                    <a
+                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=pssafetynetssolutions@gmail.com&su=${encodeURIComponent(
+                        `[Inspection Request] ${service.title} - ${bookingForm.name}`
+                      )}&body=${encodeURIComponent(
+                        `Hello PS Safetynets Solutions Team,\n\nI have requested inspection for ${service.title}:\n- Name: ${bookingForm.name}\n- Phone: ${bookingForm.phone}\n- Location: ${bookingForm.location}\n- Preferred Date: ${bookingForm.preferredDate || 'Earliest'}\n\nThank you,\n${bookingForm.name}`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-3 bg-[#ea4335] hover:bg-[#d93025] text-white font-bold text-xs shadow-sm transition-colors border border-[#ea4335]"
+                    >
+                      <Mail className="w-4 h-4" />
+                      <span>Open in Gmail</span>
+                    </a>
+                  </div>
+
                   <button
-                    onClick={() => setBookingSubmitted(false)}
-                    className="px-4 py-2 bg-pure-white/20 text-pure-white text-xs font-semibold hover:bg-pure-white/30 border border-pure-white/30"
+                    onClick={() => {
+                      setBookingSubmitted(false);
+                      setBookingForm({ name: '', phone: '', location: '', preferredDate: '' });
+                    }}
+                    className="px-4 py-2 bg-pure-white/20 text-pure-white text-xs font-semibold hover:bg-pure-white/30 border border-pure-white/30 cursor-pointer"
                   >
                     Book Another Site
                   </button>
