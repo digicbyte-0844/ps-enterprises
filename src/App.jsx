@@ -17,6 +17,7 @@ import CalculatorPage from './pages/CalculatorPage';
 import GalleryPage from './pages/GalleryPage';
 import ReviewsPage from './pages/ReviewsPage';
 import ContactPage from './pages/ContactPage';
+import VisitingCardPage from './pages/VisitingCardPage';
 
 export default function App() {
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
@@ -84,6 +85,14 @@ export default function App() {
               <Route
                 path="/contact"
                 element={<ContactPage onOpenQuote={handleOpenQuote} />}
+              />
+              <Route
+                path="/visiting-card"
+                element={<VisitingCardPage />}
+              />
+              <Route
+                path="/business-card"
+                element={<VisitingCardPage />}
               />
               {/* Catch-all fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />

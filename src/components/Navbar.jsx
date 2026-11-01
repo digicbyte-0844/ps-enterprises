@@ -84,6 +84,7 @@ export default function Navbar({ onOpenQuote }) {
     { name: 'Services', path: '/services', hasDropdown: true },
     { name: 'Gallery', path: '/gallery' },
     { name: 'Reviews', path: '/reviews' },
+    { name: 'Visiting Card', path: '/visiting-card', badge: '3D Pass' },
     { name: 'Contact', path: '/contact' },
   ];
 
@@ -249,14 +250,20 @@ export default function Navbar({ onOpenQuote }) {
                     key={link.name}
                     to={link.path}
                     className={({ isActive }) =>
-                      `text-[15px] font-medium px-3.5 py-2 transition-all ${
+                      `text-[15px] font-medium px-3.5 py-2 transition-all inline-flex items-center gap-1.5 ${
                         isActive
                           ? 'text-carbon dark:text-vivid-teal font-semibold bg-pure-white/80 dark:bg-dark-card shadow-xs border-b-2 border-emerald-500'
                           : 'text-carbon/80 dark:text-dark-muted hover:text-carbon dark:hover:text-dark-text hover:bg-pure-white/40 dark:hover:bg-dark-card/50'
                       }`
                     }
                   >
-                    {link.name}
+                    <span>{link.name}</span>
+                    {link.badge && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-0.5">
+                        <Sparkles className="w-2.5 h-2.5 text-amber-500" />
+                        <span>{link.badge}</span>
+                      </span>
+                    )}
                   </NavLink>
                 );
               })}
@@ -440,6 +447,25 @@ export default function Navbar({ onOpenQuote }) {
                 >
                   <span>Reviews</span>
                   <ChevronRight className="w-4 h-4 opacity-70" />
+                </Link>
+
+                {/* Visiting Card (3D Pass) */}
+                <Link
+                  to="/visiting-card"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-[16px] text-sm font-medium transition-colors ${
+                    location.pathname === '/visiting-card' || location.pathname === '/business-card'
+                      ? 'bg-amber-500 text-carbon font-bold'
+                      : 'text-carbon dark:text-dark-text hover:bg-amber-500/10'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <span>Visiting Card (3D)</span>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300">
+                    Pass
+                  </span>
                 </Link>
 
                 {/* Contact */}

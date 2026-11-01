@@ -147,6 +147,10 @@ export default function Footer({ onOpenQuote }) {
               <Link to="/services" className="hover:text-emerald-600 dark:hover:text-vivid-teal transition-colors py-0.5">Services</Link>
               <Link to="/gallery" className="hover:text-emerald-600 dark:hover:text-vivid-teal transition-colors py-0.5">Gallery</Link>
               <Link to="/reviews" className="hover:text-emerald-600 dark:hover:text-vivid-teal transition-colors py-0.5">Reviews</Link>
+              <Link to="/visiting-card" className="hover:text-amber-500 transition-colors py-0.5 text-amber-600 dark:text-amber-400 font-bold inline-flex items-center gap-1">
+                <span>Visiting Card</span>
+                <span className="text-[9px] bg-amber-500/20 px-1 rounded font-mono">3D</span>
+              </Link>
               <Link to="/contact" className="hover:text-emerald-600 dark:hover:text-vivid-teal transition-colors py-0.5">Contact HQ</Link>
             </div>
             
